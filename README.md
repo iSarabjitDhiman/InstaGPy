@@ -1,14 +1,11 @@
 <h1 align="center">InstaGPy</h1>
 
-<center>
-
-[![MIT license](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/iSarabjitDhiman/InstaGPy)
-![GitHub Release Date](https://img.shields.io/github/release-date/iSarabjitDhiman/InstaGPy)
-![GitHub last commit](https://img.shields.io/github/last-commit/iSarabjitDhiman/InstaGPy)
-![Twitter Follow](https://img.shields.io/twitter/follow/iSarabjitDhiman?style=social)
-
-</center>
+<p align="center">
+<a href="https://choosealicense.com/licenses/mit/"> <img src="https://img.shields.io/badge/License-MIT-green.svg"></a>
+<a href="https://www.python.org/"><img src="https://img.shields.io/pypi/pyversions/instagpy"></a>
+<a href="https://pypi.org/project/instagpy/"> <img src="https://img.shields.io/pypi/v/instagpy"></a>
+<a href="https://github.com/iSarabjitDhiman/InstaGPy/commits"> <img src="https://img.shields.io/github/last-commit/iSarabjitDhiman/InstaGPy"></a>
+<a href="https://twitter.com/isarabjitdhiman"> <img src="https://img.shields.io/twitter/follow/iSarabjitDhiman?style=social"></a>
 
 ## Overview
 
@@ -35,7 +32,7 @@ OR
 ```python
 from instagpy import InstaGPy
 
-InstaGPy(proxies=proxies, max_requests=3, use_mutiple_account=False, session_ids=None, min_requests=None, max_retries=None)
+InstaGPy(proxies=proxies, max_retries=3, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None)
 ```
 
 > ### Example - Get Basic User Details of a User
