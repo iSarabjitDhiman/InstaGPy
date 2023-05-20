@@ -104,13 +104,17 @@ get_user_info(username)
 ## Get a brief overview of a user.
 
 ```python
-get_user_basic_details(username)
+get_user_basic_details(username,print_formatted=False)
 
     """
-        Check if user is logged in.
+        Get a brief overview of an Instagram Profile.
+
+        Args:
+            username (str, optional): Instagram Username. Defaults to None.
+            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
 
         Returns:
-            bool: Returns True if user is logged in.
+            dict: User Data.
     """
 ```
 

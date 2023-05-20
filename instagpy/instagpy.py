@@ -206,17 +206,33 @@ class InstaGPy:
             self.shuffle_session()
         return response
 
-    def get_user_basic_details(self, username=None):
+    def get_user_basic_details(self, username=None, print_formatted=False):
+        """Get a brief overview of an Instagram Profile.
+
+        Args:
+            username (str, optional): Instagram Username. Defaults to None.
+            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
+
+        Returns:
+            dict: User Data.
+        """
         if username is None:
             raise Exception("Username can't be blank. Set a username.")
         user = {}
         user_info = self.get_user_info(username)['data']['user']
         user['id'] = user_info['id']
+        user['username'] = user_info['username']
+        user['full_name'] = user_info['full_name']
+        user['bio'] = user_info['biography']
         user['is_private'] = user_info['is_private']
         user['is_verified'] = user_info['is_verified']
-        user['username'] = user_info['username']
         user['follower_count'] = user_info['edge_followed_by']['count']
         user['following_count'] = user_info['edge_follow']['count']
+        user['media_count'] = user_info['edge_owner_to_timeline_media']['count']
+        user['website'] = user_info['external_url']
+        if print_formatted:
+            for key, value in user.items():
+                print(f"{key} : {value}")
         return user
 
     def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, max=None):
@@ -265,9 +281,10 @@ class InstaGPy:
                 response = make_request(
                     url, params=query_params, session=self.session, max_retries=self.max_retries)
                 if followers_list and user['is_verified']:
-                    data = data['data']['user']['edge_followed_by']
+                    data = response['data']['user']['edge_followed_by']
                     has_next_page = data['page_info']['has_next_page']
                     end_cursor = data['page_info']['end_cursor']
+                    data = data['edges']
                 else:
                     data = response['users']
                     if 'next_max_id' in response.keys():
