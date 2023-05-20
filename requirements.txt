@@ -1,0 +1,9 @@
+beautifulsoup4==4.11.1
+bs4==0.0.1
+certifi==2022.9.24
+emoji==2.2.0
+fake-useragent==1.1.1
+lxml==4.9.1
+PySocks==1.7.1
+requests==2.28.1
+urllib3==1.26.12

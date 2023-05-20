@@ -1,0 +1,1 @@
+from .instagpy import InstaGPy
