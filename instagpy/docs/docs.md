@@ -158,7 +158,7 @@ get_profile_media(username, end_cursor=None, from_date=None, to_date=None, max=N
     """
 ```
 
-## Get Post Details of a Particular Media Post. i.e. publish time, caption, url etc.
+## Get Post Details of a Particular Media Post. i.e. publish time, caption, url etc. -- LOGIN REQUIRED
 
 ```python
 get_post_details(post_url)
@@ -187,5 +187,22 @@ get_media_url(response)
 
         Returns:
             list/str: Returns List if carousel Else string its a video or a single picture.
+    """
+```
+
+## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date).
+
+```python
+get_about_user(username, print_formatted=True)
+
+    """
+        Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
+
+        Args:
+            username (str): Username of the person
+            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
+
+        Returns:
+            dict: User About Dataset.
     """
 ```

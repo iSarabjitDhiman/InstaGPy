@@ -32,6 +32,9 @@ user_feed_query = "69cba40317214236af40e7efa697781d"
 followers_list_query = "7dd9a7e2160524fd85f50317462cff9f"
 following_list_query = "c56ee0ae1f89cdbd1c89e2bc6b8f3d18"
 
+about_user_url = "https://i.instagram.com/api/v1/bloks/apps/com.instagram.interactions.about_this_account/"
+about_user_query = "8ca96ca267e30c02cf90888d91eeff09627f0e3fd2bd9df472278c9a6c022cbb"
+
 
 if __name__ == '__main__':
     pass

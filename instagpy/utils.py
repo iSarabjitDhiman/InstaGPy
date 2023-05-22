@@ -23,3 +23,40 @@ def get_post_id(post_url, is_story=False):
 
 if __name__ == '__main__':
     pass
+
+
+def format_about_data(response, placeholder=None):
+    if placeholder is None or not isinstance(placeholder, dict):
+        placeholder = {}
+    if isinstance(response, list):
+        for item in response:
+            format_about_data(item, placeholder)
+    elif isinstance(response, dict):
+        if 'children' in response.keys():
+            if isinstance(response['children'], list):
+                if any('bk.components.Text' in item for item in response['children']):
+                    try:
+                        placeholder[response['children'][0]['bk.components.Text']['text']
+                                    ] = response['children'][1]['bk.components.RichText']['children'][0]['bk.components.TextSpan']['text']
+                    except:
+                        try:
+                            placeholder[response['children'][0]
+                                        ['bk.components.Text']['text']] = None
+                        except:
+                            pass
+        if 'data' in response.keys():
+            if isinstance(response['data'], list):
+                placeholder.update({item['data']['key']: item['data']['initial_lispy'] for item in filter(
+                    lambda item: ('key' in item['data'] and 'initial_lispy' in item['data']), response['data'])})
+        for value in response.values():
+            format_about_data(value, placeholder)
+    else:
+        pass
+
+    for key, value in placeholder.items():
+        if value is None:
+            continue
+        if 'bk.action.array.Make' in value and key.endswith('about_this_account_country'):
+            placeholder[key] = value.split(
+                'bk.action.array.Make,')[-1].split(")")[0].replace('"', '').strip()
+    return placeholder

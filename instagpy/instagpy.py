@@ -421,6 +421,27 @@ class InstaGPy:
                 return [each_carousel['node']['display_resources'][-1]['src'] for each_carousel in response['data']['shortcode_media']['edge_sidecar_to_children']["edges"]]
         return None
 
+    def get_about_user(self, username, print_formatted=True):
+        """Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
+
+        Args:
+            username (str): Username of the person
+            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
+
+        Returns:
+            dict: User About Dataset.
+        """
+        if not self.logged_in():
+            self.login()
+        user_id = self.get_user_id(username)
+        data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
+            'bloks_version': about_user_query, 'style_id': 'instagram'}, 'bloks_versioning_id': about_user_query}
+        response = make_request(about_user_url, method='POST', data=data,
+                                session=self.session, max_retries=self.max_retries)
+        if print_formatted:
+            return utils.format_about_data(response)
+        return response
+
 
 if __name__ == "__main__":
     pass

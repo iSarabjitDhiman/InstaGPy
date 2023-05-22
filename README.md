@@ -42,7 +42,7 @@ from instagpy import InstaGPy
 
 insta = InstaGPy()
 
-print(insta.get_user_basic_details('champagnepapi'))
+insta.get_user_basic_details('champagnepapi',print_formatted=True)
 
 ```
 
