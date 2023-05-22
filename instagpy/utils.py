@@ -21,10 +21,6 @@ def get_post_id(post_url, is_story=False):
     return post_id
 
 
-if __name__ == '__main__':
-    pass
-
-
 def format_about_data(response, placeholder=None):
     if placeholder is None or not isinstance(placeholder, dict):
         placeholder = {}
@@ -60,3 +56,7 @@ def format_about_data(response, placeholder=None):
             placeholder[key] = value.split(
                 'bk.action.array.Make,')[-1].split(")")[0].replace('"', '').strip()
     return placeholder
+
+
+if __name__ == '__main__':
+    pass
