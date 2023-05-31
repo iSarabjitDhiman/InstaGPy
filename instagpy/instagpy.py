@@ -71,6 +71,9 @@ class InstaGPy:
             {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': login_page_url})
 
     def shuffle_session(self):
+        if not self.use_mutiple_account:
+            return
+        self.current_request_number += 1
         if self.current_request_number % self.shuffle_session_after == 0:
             self.shuffle_session_after = random.randint(
                 self.min_requests, self.max_requests)
@@ -184,7 +187,10 @@ class InstaGPy:
         Returns:
             dict: user info like username,id,bio,follower/following count etc.
         """
-        return make_request(user_profile_endpoint.format(username), session=self.session, max_retries=self.max_retries)
+        response = make_request(user_profile_endpoint.format(
+            username), session=self.session, max_retries=self.max_retries)
+        self.shuffle_session()
+        return response
 
     def get_user_data(self, user_id):
         """Extracts user details. With Contact Info Like email, phone and address.
@@ -201,9 +207,7 @@ class InstaGPy:
         user_id = self.get_user_id(user_id)
         response = make_request(user_data_endpoint.format(
             user_id), session=self.session, max_retries=self.max_retries)
-        if self.use_mutiple_account:
-            self.current_request_number += 1
-            self.shuffle_session()
+        self.shuffle_session()
         return response
 
     def get_user_basic_details(self, username=None, print_formatted=False):
@@ -297,9 +301,7 @@ class InstaGPy:
                 if not has_next_page or (max is not None and len(user_friends) >= max):
                     return user_friends
 
-                if self.use_mutiple_account:
-                    self.current_request_number += 1
-                    self.shuffle_session()
+                self.shuffle_session()
 
             except ConnectionError as error:
                 print(error)
@@ -380,9 +382,7 @@ class InstaGPy:
                 if not has_next_page or (max is not None and len(user_posts_data) >= max):
                     return user_posts_data
 
-                if self.use_mutiple_account:
-                    self.current_request_number += 1
-                    self.shuffle_session()
+                self.shuffle_session()
 
         except Exception as e:
             print(e)
@@ -400,7 +400,10 @@ class InstaGPy:
         url = graphql_url
         query_params = self.generate_query(
             query=post_details_query, shortcode=post_id, is_graphql=True)
-        return make_request(url, params=query_params, session=self.session, max_retries=self.max_retries)
+        response = make_request(
+            url, params=query_params, session=self.session, max_retries=self.max_retries)
+        self.shuffle_session()
+        return response
 
     def get_media_url(self, response):
         """Extracts High Resolution/Quality Media URL from post details response returned from get_post_details method.
@@ -440,6 +443,7 @@ class InstaGPy:
                                 session=self.session, max_retries=self.max_retries)
         if print_formatted:
             return utils.format_about_data(response)
+        self.shuffle_session()
         return response
 
 
