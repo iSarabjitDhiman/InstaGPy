@@ -41,10 +41,7 @@ class InstaGPy:
         self.use_mutiple_account = use_mutiple_account
         self.max_retries = max_retries or config.MAX_RETRIES
         self.timeout = timeout or config.TIMEOUT
-        self.session = requests.Session()
-        if proxies is not None:
-            self.session.proxies = proxies
-            self.session.verify = False
+        self.proxies = proxies
         self.generate_session()
 
     @property
@@ -63,7 +60,8 @@ class InstaGPy:
         Returns:
             dict: Meta Data.
         """
-        response = make_request(path.META_DATA_URL)
+        response = make_request(
+            path.META_DATA_URL, session=self.session, max_retries=self.max_retries)
         return response
 
     def generate_session(self, session_id=None):
@@ -72,6 +70,10 @@ class InstaGPy:
         Args:
             session_id (str, optional): Session Id from Instagram Session Cookies. Defaults to None.
         """
+        self.session = requests.Session()
+        if self.proxies is not None:
+            self.session.proxies = self.proxies
+            self.session.verify = False
         self.session.headers.update(
             {"User-Agent": random.choice(config.USER_AGENTS)})
         make_request(path.BASE_URL, session=self.session,
@@ -83,13 +85,18 @@ class InstaGPy:
                 if response.cookies:
                     break
         csrf_token = dict(response.cookies)["csrftoken"]
-        if session_id:
-            "load an existing session with session_id"
-            self.session.cookies.update({'sessionid': session_id})
-            return
-        self.session.cookies = response.cookies
         self.session.headers.update(
             {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': path.BASE_URL})
+        self.session.cookies = response.cookies
+        if session_id:
+            # load an existing session with session_id
+            self.session.cookies.update({'sessionid': session_id})
+
+        try:
+            self.me
+        except:
+            pass
+        return self.session
 
     def shuffle_session(self, ignore_requests_limit=False):
         """Shuffle session/cookies. Takes a new session ID from self.session_ids if using with mutiple accounts.
