@@ -4,17 +4,17 @@ import datetime
 import time
 import getpass
 import random
-from .path import *
-from .request_util import make_request
+# custom
+from . import config
 from . import session_util
 from . import utils
-
-user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 Instagram 12.0.0.16.90 (iPhone9,4; iOS 10_3_3; en_US; en-US; scale=2.61; gamut=wide; 1080x1920"
+from . import path
+from .request_util import make_request
 
 
 class InstaGPy:
 
-    def __init__(self, max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None):
+    def __init__(self, max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None, timeout=None):
         """
 
         Args:
@@ -24,6 +24,7 @@ class InstaGPy:
             session_ids (list, optional): List of Session IDs from Cookies. Applicable only if use_mutiple_accounts is True. Defaults to False.
             min_requests (int, optional): Minimum requests to make before shuffling a session ID. Defaults to None.
             max_requests (int, optional): Maximum requests to make before shuffling a session ID. Defaults to None.
+            timeout (int, optional): Request timeout. Defaults to None.
         """
         if use_mutiple_account and not session_ids:
             raise Exception(
@@ -31,14 +32,15 @@ class InstaGPy:
         if use_mutiple_account and session_ids:
             self.current_request_number = 1
             # shuffle session randomly after every nth request.
-            self.min_requests = min_requests or 3
-            self.max_requests = max_requests or 6
+            self.min_requests = min_requests or config.MIN_REQUESTS
+            self.max_requests = max_requests or config.MAX_REQUESTS
             self.shuffle_session_after = random.randint(
                 self.min_requests, self.max_requests)
             self.session_ids_container = None
         self.session_ids = session_ids
         self.use_mutiple_account = use_mutiple_account
-        self.max_retries = max_retries or 3
+        self.max_retries = max_retries or config.MAX_RETRIES
+        self.timeout = timeout or config.TIMEOUT
         self.session = requests.Session()
         if proxies is not None:
             self.session.proxies = proxies
@@ -52,13 +54,13 @@ class InstaGPy:
             session_id (str, optional): Session Id from Instagram Session Cookies. Defaults to None.
         """
         self.session.headers.update(
-            {"User-Agent": user_agent})
-        make_request(base_url, session=self.session,
+            {"User-Agent": random.choice(config.USER_AGENTS)})
+        make_request(path.BASE_URL, session=self.session,
                      max_retries=self.max_retries)
-        response = requests.get(login_url)
+        response = requests.get(path.LOGIN_URL)
         if not response.cookies:
             for _ in range(self.max_retries):
-                response = self.session.get(login_url)
+                response = self.session.get(path.LOGIN_URL)
                 if response.cookies:
                     break
         csrf_token = dict(response.cookies)["csrftoken"]
@@ -68,7 +70,7 @@ class InstaGPy:
             return
         self.session.cookies = response.cookies
         self.session.headers.update(
-            {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': login_page_url})
+            {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': path.BASE_URL})
 
     def shuffle_session(self, ignore_requests_limit=False):
         """Shuffle session/cookies. Takes a new session ID from self.session_ids if using with mutiple accounts.
@@ -164,7 +166,7 @@ class InstaGPy:
             'optIntoOneTap': 'false',
             'trustedDeviceRecords': {}
         }
-        response = self.session.post(login_url, data=payload).json()
+        response = self.session.post(path.LOGIN_URL, data=payload).json()
         try:
             if response["authenticated"]:
                 print("\nSuccessfully Logged In....")
@@ -201,7 +203,7 @@ class InstaGPy:
         Returns:
             dict: user info like username,id,bio,follower/following count etc.
         """
-        response = make_request(user_profile_endpoint.format(
+        response = make_request(path.USER_PROFILE_ENDPOINT.format(
             username), session=self.session, max_retries=self.max_retries)
         self.shuffle_session()
         return response
@@ -219,7 +221,7 @@ class InstaGPy:
         if not self.logged_in():
             self.login()
         user_id = self.get_user_id(user_id)
-        response = make_request(user_data_endpoint.format(
+        response = make_request(path.USER_DATA_ENDPOINT.format(
             user_id), session=self.session, max_retries=self.max_retries)
         self.shuffle_session()
         return response
@@ -281,16 +283,16 @@ class InstaGPy:
         print(f'Started at : {utils.format_datetime(time.time())}\n')
         while True:
             if followers_list and user['is_verified']:
-                url = graphql_url
+                url = path.GRAPHQL_URL
                 max_data = 50
-                query_params = self.generate_query(query=followers_list_query, count=max_data, user_id=user['id'],
+                query_params = self.generate_query(query=path.FOLLOWERS_LIST_QUERY, count=max_data, user_id=user['id'],
                                                    end_cursor=end_cursor, search_surface="follow_list_page", is_graphql=True)
             else:
                 if followers_list:
-                    url = user_followers_endpoint.format(user['id'])
+                    url = path.USER_FOLLOWERS_ENDPOINT.format(user['id'])
                     max_data = 100
                 elif followings_list:
-                    url = user_followings_endpoint.format(user['id'])
+                    url = path.USER_FOLLOWINGS_ENDPOINT.format(user['id'])
                     max_data = 200
                 query_params = self.generate_query(
                     count=max_data, end_cursor=end_cursor)
@@ -367,10 +369,10 @@ class InstaGPy:
         try:
             while True:
                 query_params = self.generate_query(
-                    query=user_feed_query, user_id=user_id, count=50, end_cursor=end_cursor, is_graphql=True)
+                    query=path.USER_FEED_QUERY, user_id=user_id, count=50, end_cursor=end_cursor, is_graphql=True)
                 try:
                     response = make_request(
-                        graphql_url, params=query_params, session=self.session, max_retries=self.max_retries)
+                        path.GRAPHQL_URL, params=query_params, session=self.session, max_retries=self.max_retries)
                     data = response['data']['user']['edge_owner_to_timeline_media']
                     posts_count = data['count']
                     has_next_page = data['page_info']['has_next_page']
@@ -411,9 +413,9 @@ class InstaGPy:
             dict: All the details like post_id,datetime,caption,url,location etc.
         """
         post_id = utils.get_post_id(post_url)
-        url = graphql_url
+        url = path.GRAPHQL_URL
         query_params = self.generate_query(
-            query=post_details_query, shortcode=post_id, is_graphql=True)
+            query=path.POST_DETAILS_QUERY, shortcode=post_id, is_graphql=True)
         response = make_request(
             url, params=query_params, session=self.session, max_retries=self.max_retries)
         self.shuffle_session()
@@ -452,8 +454,8 @@ class InstaGPy:
             self.login()
         user_id = self.get_user_id(username)
         data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
-            'bloks_version': about_user_query, 'style_id': 'instagram'}, 'bloks_versioning_id': about_user_query}
-        response = make_request(about_user_url, method='POST', data=data,
+            'bloks_version': path.ABOUT_USER_QUERY, 'style_id': 'instagram'}, 'bloks_versioning_id': path.ABOUT_USER_QUERY}
+        response = make_request(path.ABOUT_USER_URL, method='POST', data=data,
                                 session=self.session, max_retries=self.max_retries)
         if print_formatted:
             return utils.format_about_data(response)

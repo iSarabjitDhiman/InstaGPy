@@ -2,6 +2,7 @@ import pickle
 import requests
 import os
 import instagpy as instagram
+from . import config
 
 
 def generate_new_session(path=None):
@@ -14,7 +15,7 @@ def create_session_directory(path=None, directory_name=None):
     if path is None:
         path = os.getcwd()
     if directory_name is None:
-        directory_name = "Insta Saved Sessions"
+        directory_name = config.SESSION_DIRECTORY
     directory = os.path.join(path, directory_name)
     if not os.path.exists(directory):
         os.mkdir(directory)

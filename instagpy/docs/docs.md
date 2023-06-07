@@ -5,7 +5,7 @@
 ```python
 from instagpy import InstaGPy
 
-insta = InstaGPy(max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None)
+insta = InstaGPy(max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None,timeout=None)
 
 
     """
@@ -16,6 +16,7 @@ insta = InstaGPy(max_retries=None, proxies=None, use_mutiple_account=False, sess
             session_ids (list, optional): List of Session IDs from Cookies. Applicable only if use_mutiple_accounts is True. Defaults to False.
             min_requests (int, optional): Minimum requests to make before shuffling a session ID. Defaults to None.
             max_requests (int, optional): Maximum requests to make before shuffling a session ID. Defaults to None.
+            timeout (int, optional): Request timeout. Defaults to None.
     """
 ```
 
