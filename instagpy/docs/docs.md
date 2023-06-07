@@ -62,6 +62,22 @@ login(username=None, password=None, show_saved_sessions=True, save_session=True)
     """
 ```
 
+## Shuffle Session Manually.
+
+```python
+shuffle_session(self, ignore_requests_limit=False):
+
+    """
+        Shuffle session/cookies. Takes a new session ID from self.session_ids only if using with mutiple accounts.
+
+        Args:
+            ignore_requests_limit (bool, optional): Set to True to shuffle session manually regardless of min/max number of requests. Defaults to False.
+
+        Returns:
+            Session object: Session Object i.e. self.session
+    """
+```
+
 ## Get User ID of a User.
 
 ```python

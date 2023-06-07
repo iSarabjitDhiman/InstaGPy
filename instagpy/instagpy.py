@@ -29,7 +29,6 @@ class InstaGPy:
             raise Exception(
                 'Either Pass a list of session_ids or set use_multiple_account to False.')
         if use_mutiple_account and session_ids:
-            self.session_ids = session_ids
             self.current_request_number = 1
             # shuffle session randomly after every nth request.
             self.min_requests = min_requests or 3
@@ -37,6 +36,7 @@ class InstaGPy:
             self.shuffle_session_after = random.randint(
                 self.min_requests, self.max_requests)
             self.session_ids_container = None
+        self.session_ids = session_ids
         self.use_mutiple_account = use_mutiple_account
         self.max_retries = max_retries or 3
         self.session = requests.Session()
@@ -70,17 +70,31 @@ class InstaGPy:
         self.session.headers.update(
             {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': login_page_url})
 
-    def shuffle_session(self):
+    def shuffle_session(self, ignore_requests_limit=False):
+        """Shuffle session/cookies. Takes a new session ID from self.session_ids if using with mutiple accounts.
+
+        Args:
+            ignore_requests_limit (bool, optional): Set to True to shuffle session manually regardless of min/max number of requests. Defaults to False.
+
+        Returns:
+            Session object: Session Object i.e. self.session
+        """
         if not self.use_mutiple_account:
             return
-        self.current_request_number += 1
-        if self.current_request_number % self.shuffle_session_after == 0:
-            self.shuffle_session_after = random.randint(
-                self.min_requests, self.max_requests)
+        change_session = False
+        if ignore_requests_limit:
+            change_session = True
+        if not ignore_requests_limit:
+            self.current_request_number += 1
+            if self.current_request_number % self.shuffle_session_after == 0:
+                self.shuffle_session_after = random.randint(
+                    self.min_requests, self.max_requests)
+                change_session = True
+        if change_session:
             if not self.session_ids_container:
                 self.session_ids_container = self.session_ids.copy()
             session_id = self.session_ids_container.pop()
-            self.generate_session(session_id=session_id)
+            return self.generate_session(session_id=session_id)
 
     def generate_query(self, query=None, count=None, user_id=None, end_cursor=None, search_surface=None, shortcode=None, is_graphql=False):
         """Generates query paramters for instagram api requests.
