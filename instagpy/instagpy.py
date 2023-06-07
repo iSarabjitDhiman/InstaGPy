@@ -47,6 +47,25 @@ class InstaGPy:
             self.session.verify = False
         self.generate_session()
 
+    @property
+    def me(self):
+        """Returns Logged in User Information.
+
+        Returns:
+            dict: Currently logged in User Data.
+        """
+        response = self._get_meta_data()
+        return response['config']['viewer']
+
+    def _get_meta_data(self):
+        """Returns Browser's and User's Meta Data.
+
+        Returns:
+            dict: Meta Data.
+        """
+        response = make_request(path.META_DATA_URL)
+        return response
+
     def generate_session(self, session_id=None):
         """Generates Required Headers and Cookies. OR Generates Session from an existing Session ID.
 

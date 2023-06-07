@@ -63,6 +63,19 @@ login(username=None, password=None, show_saved_sessions=True, save_session=True)
     """
 ```
 
+## Get Logged In User Details.
+
+```python
+self.me
+
+    """
+        Returns Logged in User Information.
+
+        Returns:
+            dict: Currently logged in User Data.
+    """
+```
+
 ## Shuffle Session Manually.
 
 ```python
