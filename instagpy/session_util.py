@@ -36,7 +36,7 @@ def show_saved_sessions(path=None):
     all_files.append(
         f"{len(os.listdir(path))+1}. Login with a New Account.")
     for file in all_files:
-        os.path.splitext(file)[0]
+        print(os.path.splitext(file)[0])
     file_number = int(
         input("\nChoose a Number to Load an Exising Session : ").strip())
     if file_number != len(os.listdir(path))+1:
