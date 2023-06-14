@@ -47,7 +47,7 @@ logged_in()
 ## Log Into an Account.
 
 ```python
-login(username=None, password=None, show_saved_sessions=True, save_session=True):
+login(username=None, password=None, show_saved_sessions=False, save_session=True):
 
     """
         Login Into a user account for Data Scraping Purpose.
@@ -55,7 +55,7 @@ login(username=None, password=None, show_saved_sessions=True, save_session=True)
         Args:
             username (str, optional): Instgram Username or Email. Defaults to None.
             password (str, optional): Password. Defaults to None.
-            show_saved_sessions (bool, optional): Shows saved sessions before logging into new account. Defaults to True.
+            show_saved_sessions (bool, optional): Shows saved sessions before logging into new account. Defaults to False.
             save_session (bool, optional): Save session if want to use it without logging in manually each time. Defaults to True.
 
         Returns:

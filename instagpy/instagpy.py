@@ -163,20 +163,20 @@ class InstaGPy:
 
         return params
 
-    def login(self, username=None, password=None, show_saved_sessions=True, save_session=True):
+    def login(self, username=None, password=None, show_saved_sessions=False, save_session=True):
         """Login Into a user account for Data Scraping Purpose.
 
         Args:
             username (str, optional): Instgram Username or Email. Defaults to None.
             password (str, optional): Password. Defaults to None.
-            show_saved_sessions (bool, optional): Shows saved sessions before logging into new account. Defaults to True.
+            show_saved_sessions (bool, optional): Shows saved sessions before logging into new account. Defaults to False.
             save_session (bool, optional): Save session if want to use it without logging in manually each time. Defaults to True.
 
         Returns:
             dict: Response from server whether got logged in.
         """
         self.generate_session()
-        if show_saved_sessions:
+        if show_saved_sessions or (username is None and password is None):
             session_util.load_session(session=self.session)
             return
         if username is None:
