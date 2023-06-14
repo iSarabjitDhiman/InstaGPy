@@ -58,5 +58,17 @@ def format_about_data(response, placeholder=None):
     return placeholder
 
 
+def check_for_errors(response):
+    if isinstance(response, dict):
+        if "status" in response.keys():
+            if response["status"] == "ok":
+                return response
+            if response["status"] != "ok":
+                if "message" in response.keys():
+                    print(response)
+                    raise Exception(response['message'])
+    return response
+
+
 if __name__ == '__main__':
     pass
