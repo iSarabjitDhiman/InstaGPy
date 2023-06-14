@@ -177,8 +177,9 @@ class InstaGPy:
         """
         self.generate_session()
         if show_saved_sessions or (username is None and password is None):
-            session_util.load_session(session=self.session)
-            return
+            if show_saved_sessions is not False:
+                session_util.load_session(session=self.session)
+                return
         if username is None:
             username = str(input("Enter Your Username or Email : ")).strip()
         if password is None:

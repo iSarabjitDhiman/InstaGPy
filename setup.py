@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 SHORT_DESCRIPTION = "InstaGPy is an Instagram Unofficial API to extract data from Instargam Profiles. Scrape data from user's profile like username, userid, bio, email, phone, followers/followings list, profile media, account_type, etc."
 
 with open("requirements.txt") as file:
