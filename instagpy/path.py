@@ -35,5 +35,7 @@ FOLLOWING_LIST_QUERY = "c56ee0ae1f89cdbd1c89e2bc6b8f3d18"
 ABOUT_USER_URL = "https://i.instagram.com/api/v1/bloks/apps/com.instagram.interactions.about_this_account/"
 ABOUT_USER_QUERY = "8ca96ca267e30c02cf90888d91eeff09627f0e3fd2bd9df472278c9a6c022cbb"
 
+HASHTAG_QUERY = "9b498c08113f1e09617a1703c22b2f32"
+
 if __name__ == '__main__':
     pass

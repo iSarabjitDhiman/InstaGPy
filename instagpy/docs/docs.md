@@ -236,3 +236,21 @@ get_about_user(username, print_formatted=True)
             dict: User About Dataset.
     """
 ```
+
+## Get Media Posts from a Hashtag. -- LOGIN REQUIRED
+
+```python
+get_hashtag_posts(self, hashtag=None, end_cursor=None, max=None)
+
+    """
+        Get media posts from hashtags.
+
+        Args:
+            hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or #hashtag. Defaults to None.
+            end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
+            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+
+        Returns:
+            dict: Hashtag posts data.
+    """
+```

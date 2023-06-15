@@ -124,7 +124,7 @@ class InstaGPy:
             session_id = self.session_ids_container.pop()
             return self.generate_session(session_id=session_id)
 
-    def generate_query(self, query=None, count=None, user_id=None, end_cursor=None, search_surface=None, shortcode=None, is_graphql=False):
+    def generate_query(self, query=None, count=None, user_id=None, end_cursor=None, search_surface=None, shortcode=None, hashtag=None, is_graphql=False):
         """Generates query paramters for instagram api requests.
 
         Args:
@@ -151,6 +151,8 @@ class InstaGPy:
                 data['after'] = end_cursor
             if shortcode:
                 data['shortcode'] = shortcode
+            if hashtag:
+                data['tag_name'] = hashtag
 
             params["variables"] = json.dumps(data)
         else:
@@ -488,6 +490,55 @@ class InstaGPy:
             return utils.format_about_data(response)
         self.shuffle_session()
         return response
+
+    def get_hashtag_posts(self, hashtag=None, end_cursor=None, max=None):
+        """Get media posts from hashtags.
+
+        Args:
+            hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or #hashtag. Defaults to None.
+            end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
+            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+
+        Returns:
+            dict: Hashtag posts data.
+        """
+        if hashtag is None:
+            raise Exception("No hashtag was given.")
+        if not self.logged_in():
+            self.login()
+        hashtag = hashtag.lstrip("#")
+        hashtag_posts = []
+        url = path.GRAPHQL_URL
+        max_data = 50
+        print(f'Started at : {utils.format_datetime(time.time())}\n')
+        while True:
+            query_params = self.generate_query(
+                query=path.HASHTAG_QUERY, hashtag=hashtag, count=max_data, end_cursor=end_cursor, is_graphql=True)
+
+            try:
+                response = make_request(
+                    url, params=query_params, session=self.session, max_retries=self.max_retries)
+                data = response['data']['hashtag']['edge_hashtag_to_media']
+                has_next_page = data['page_info']['has_next_page']
+                end_cursor = data['page_info']['end_cursor']
+                count = data['count']
+                data = data['edges']
+
+                hashtag_posts.extend(data)
+                print(
+                    f"#{hashtag} : {len(hashtag_posts)} / {count}", end="\r")
+                if not has_next_page or (max is not None and len(hashtag_posts) >= max):
+                    return hashtag_posts
+
+                self.shuffle_session()
+
+            except ConnectionError as error:
+                print(error)
+                continue
+
+            except Exception as error:
+                print(error)
+                return hashtag_posts
 
 
 if __name__ == "__main__":
