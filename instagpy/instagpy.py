@@ -195,18 +195,26 @@ class InstaGPy:
             'optIntoOneTap': 'false',
             'trustedDeviceRecords': {}
         }
-        response = self.session.post(path.LOGIN_URL, data=payload).json()
+        user = self.session.post(path.LOGIN_URL, data=payload).json()
         try:
-            if response["authenticated"]:
-                print("\nSuccessfully Logged In....")
+            if user["authenticated"]:
+                user_id = user["userId"]
+                # test if the account is working
+                user = self.session.get(
+                    path.USER_DATA_ENDPOINT.format(user_id)).json()
+                if user['status'] != 'ok':
+                    raise Exception(
+                        f"Not Working! Check if the given account is working.")
+                user_fullname = user['user']['full_name']
+                print(f"{user_fullname} : Successfully Logged In....")
                 if save_session:
                     session_util.save_session(
                         session=self.session, filename=username)
                 return
             raise Exception("Couldn't LogIn, Try again...")
-        except Exception as e:
-            print('\n', e)
-            return response
+        except Exception as error:
+            print('\n', error)
+            utils.check_for_errors(user)
 
     def logged_in(self):
         """Check if user is logged in.
@@ -495,7 +503,8 @@ class InstaGPy:
         """Get media posts from hashtags.
 
         Args:
-            hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or #hashtag. Defaults to None.
+            # hashtag. Defaults to None.
+            hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
 
