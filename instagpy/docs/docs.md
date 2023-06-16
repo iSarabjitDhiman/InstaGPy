@@ -63,6 +63,24 @@ login(username=None, password=None, show_saved_sessions=False, save_session=True
     """
 ```
 
+## Get Session ID.
+
+```python
+get_session_id(self, username=None, password=None, new_session=False)
+
+    """
+        Get sessionID of the current session OR a new login session. By default returns current one if logged in.
+
+        Args:
+            username (str): Username OR Email. Defaults to None
+            password (str): Password. Defaults to None
+            new_session (bool, optional): Set to True if want to get session ID from a new session. Otherwise It will return the already logged In session ID. Defaults to False.
+
+        Returns:
+            str: Session ID.
+    """
+```
+
 ## Get Logged In User Details.
 
 ```python

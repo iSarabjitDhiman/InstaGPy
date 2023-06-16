@@ -226,6 +226,25 @@ class InstaGPy:
             return True
         return False
 
+    def get_session_id(self, username=None, password=None, new_session=False):
+        """Get sessionID of the current session OR a new login session. By default returns current one if logged in.
+
+        Args:
+            username (str): Username OR Email.
+            password (str): Password
+            new_session (bool, optional): Set to True if want to get session ID of new session. Otherwise It will return the already logged In session ID. Defaults to False.
+
+        Returns:
+            str: Session ID.
+        """
+        if new_session:
+            self.generate_session()
+            self.login(username, password)
+        if self.logged_in():
+            return self.session.cookies['sessionid']
+        raise Exception(
+            "You are not logged In. Set new_session=True to generate a new session.")
+
     def get_user_id(self, username):
         if isinstance(username, int) or username.isnumeric():
             return username
