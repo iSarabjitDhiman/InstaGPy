@@ -117,8 +117,9 @@ get_user_info(username)
 ## Get User Details with contact Info i.e. phone, email, whatsapp no., address etc. -- LOGIN REQUIRED
 
 ```python
-get_user_info(username)
-
+get_user_data(user_id)
+#if username is given, it will automatically be converted to user_id.
+#so works with both username and user_id. but will make an additional request to get user_id.
     """
         Extracts user details. With Contact Info Like email, phone and address.
 
@@ -188,7 +189,7 @@ get_profile_media(username, end_cursor=None, from_date=None, to_date=None, max=N
     """
 ```
 
-## Get Post Details of a Particular Media Post. i.e. publish time, caption, url etc. -- LOGIN REQUIRED
+## Get Post Details of a Particular Media Post. i.e. publish time, caption, url etc.
 
 ```python
 get_post_details(post_url)
@@ -220,7 +221,7 @@ get_media_url(response)
     """
 ```
 
-## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date).
+## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date). -- LOGIN REQUIRED
 
 ```python
 get_about_user(username, print_formatted=True)
