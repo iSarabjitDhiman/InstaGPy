@@ -1,17 +1,18 @@
 import requests
 import bs4
 from . import utils
+from . import config
 
 
 def make_request(url, session=None, method=None, max_retries=None, timeout=None, **kwargs):
     if method is None:
         method = "GET"
     if max_retries is None:
-        max_retries = 3
+        max_retries = config.MAX_RETRIES or 3
     if session is None:
-        session = requests.Session()
+        session = config._DEFAULT_SESSION or requests.Session()
     if timeout is None:
-        timeout = 30
+        timeout = config.TIMEOUT or 30
     for retry_count, _ in enumerate(range(max_retries), start=1):
         try:
             response_text = ""

@@ -4,14 +4,13 @@
 
 ```python
 from instagpy import InstaGPy
+from instagpy import config # if want to change configurations.Check out config docs.
 
-insta = InstaGPy(max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None,timeout=None)
+insta = InstaGPy(use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None,timeout=None)
 
 
     """
         Args:
-            max_retries (int, optional): Number of retires for each request. Defaults to None.
-            proxies (dict, optional): Proxies as a dictionary {'http': proxy_here,'https':proxy_here}. Residential Proxies are recommended. Defaults to None.
             use_mutiple_account (bool, optional): Set to True if want to scrape data with mutiple account sessions So that you don't get blocked. Defaults to False.
             session_ids (list, optional): List of Session IDs from Cookies. Applicable only if use_mutiple_accounts is True. Defaults to False.
             min_requests (int, optional): Minimum requests to make before shuffling a session ID. Defaults to None.
@@ -24,10 +23,14 @@ insta = InstaGPy(max_retries=None, proxies=None, use_mutiple_account=False, sess
 
 ```python
 from instagpy import InstaGPy
+from instagpy import config
+
+config.PROXY = {"http":"127.0.0.1","https":"127.0.0.1"}
+config.TIMEOUT = 10
 
 insta = InstaGPy()
 
-print(insta.get_user_basic_details('champagnepapi'))
+insta.get_user_basic_details('champagnepapi',print_formatted=True)
 
 ```
 

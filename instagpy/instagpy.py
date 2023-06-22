@@ -14,12 +14,10 @@ from .request_util import make_request
 
 class InstaGPy:
 
-    def __init__(self, max_retries=None, proxies=None, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None, timeout=None):
+    def __init__(self, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None):
         """
 
         Args:
-            max_retries (int, optional): Number of retires for each request. Defaults to None.
-            proxies (dict, optional): Proxies as a dictionary {'http': proxy_here,'https':proxy_here}. Residential Proxies are recommended. Defaults to None.
             use_mutiple_account (bool, optional): Set to True if want to scrape data with mutiple account sessions So that you don't get blocked. Defaults to False.
             session_ids (list, optional): List of Session IDs from Cookies. Applicable only if use_mutiple_accounts is True. Defaults to False.
             min_requests (int, optional): Minimum requests to make before shuffling a session ID. Defaults to None.
@@ -39,9 +37,6 @@ class InstaGPy:
             self.session_ids_container = None
         self.session_ids = session_ids
         self.use_mutiple_account = use_mutiple_account
-        self.max_retries = max_retries or config.MAX_RETRIES
-        self.timeout = timeout or config.TIMEOUT
-        self.proxies = proxies
         self.generate_session()
 
     @property
@@ -60,8 +55,7 @@ class InstaGPy:
         Returns:
             dict: Meta Data.
         """
-        response = make_request(
-            path.META_DATA_URL, session=self.session, max_retries=self.max_retries)
+        response = make_request(path.META_DATA_URL)
         return response
 
     def generate_session(self, session_id=None):
@@ -71,13 +65,12 @@ class InstaGPy:
             session_id (str, optional): Session Id from Instagram Session Cookies. Defaults to None.
         """
         self.session = requests.Session()
-        if self.proxies is not None:
-            self.session.proxies = self.proxies
+        if config.PROXY is not None:
+            self.session.proxies = config.PROXY
             self.session.verify = False
         self.session.headers.update(
-            {"User-Agent": random.choice(config.USER_AGENTS)})
-        make_request(path.BASE_URL, session=self.session,
-                     max_retries=self.max_retries)
+            {"User-Agent": random.choice(config._USER_AGENTS)})
+        make_request(path.BASE_URL, session=self.session)
         response = requests.get(path.LOGIN_URL)
         if not response.cookies:
             for _ in range(self.max_retries):
@@ -96,6 +89,7 @@ class InstaGPy:
             self.me
         except:
             pass
+        config._DEFAULT_SESSION = self.session
         return self.session
 
     def shuffle_session(self, ignore_requests_limit=False):
@@ -259,8 +253,7 @@ class InstaGPy:
         Returns:
             dict: user info like username,id,bio,follower/following count etc.
         """
-        response = make_request(path.USER_PROFILE_ENDPOINT.format(
-            username), session=self.session, max_retries=self.max_retries)
+        response = make_request(path.USER_PROFILE_ENDPOINT.format(username))
         self.shuffle_session()
         return response
 
@@ -277,8 +270,7 @@ class InstaGPy:
         if not self.logged_in():
             self.login()
         user_id = self.get_user_id(user_id)
-        response = make_request(path.USER_DATA_ENDPOINT.format(
-            user_id), session=self.session, max_retries=self.max_retries)
+        response = make_request(path.USER_DATA_ENDPOINT.format(user_id))
         self.shuffle_session()
         return response
 
@@ -354,8 +346,7 @@ class InstaGPy:
                     count=max_data, end_cursor=end_cursor)
 
             try:
-                response = make_request(
-                    url, params=query_params, session=self.session, max_retries=self.max_retries)
+                response = make_request(url, params=query_params)
                 if followers_list and user['is_verified']:
                     data = response['data']['user']['edge_followed_by']
                     has_next_page = data['page_info']['has_next_page']
@@ -428,7 +419,7 @@ class InstaGPy:
                     query=path.USER_FEED_QUERY, user_id=user_id, count=50, end_cursor=end_cursor, is_graphql=True)
                 try:
                     response = make_request(
-                        path.GRAPHQL_URL, params=query_params, session=self.session, max_retries=self.max_retries)
+                        path.GRAPHQL_URL, params=query_params)
                     data = response['data']['user']['edge_owner_to_timeline_media']
                     posts_count = data['count']
                     has_next_page = data['page_info']['has_next_page']
@@ -472,8 +463,7 @@ class InstaGPy:
         url = path.GRAPHQL_URL
         query_params = self.generate_query(
             query=path.POST_DETAILS_QUERY, shortcode=post_id, is_graphql=True)
-        response = make_request(
-            url, params=query_params, session=self.session, max_retries=self.max_retries)
+        response = make_request(url, params=query_params)
         self.shuffle_session()
         return response
 
@@ -511,8 +501,7 @@ class InstaGPy:
         user_id = self.get_user_id(username)
         data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
             'bloks_version': path.ABOUT_USER_QUERY, 'style_id': 'instagram'}, 'bloks_versioning_id': path.ABOUT_USER_QUERY}
-        response = make_request(path.ABOUT_USER_URL, method='POST', data=data,
-                                session=self.session, max_retries=self.max_retries)
+        response = make_request(path.ABOUT_USER_URL, method='POST', data=data)
         if print_formatted:
             return utils.format_about_data(response)
         self.shuffle_session()
@@ -544,8 +533,7 @@ class InstaGPy:
                 query=path.HASHTAG_QUERY, hashtag=hashtag, count=max_data, end_cursor=end_cursor, is_graphql=True)
 
             try:
-                response = make_request(
-                    url, params=query_params, session=self.session, max_retries=self.max_retries)
+                response = make_request(url, params=query_params)
                 data = response['data']['hashtag']['edge_hashtag_to_media']
                 has_next_page = data['page_info']['has_next_page']
                 end_cursor = data['page_info']['end_cursor']

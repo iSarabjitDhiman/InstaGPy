@@ -32,7 +32,7 @@ OR
 ```python
 from instagpy import InstaGPy
 
-InstaGPy(proxies=proxies, max_retries=3, use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None)
+InstaGPy(use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None)
 ```
 
 > ### Example - Get Basic User Details of a User
@@ -51,6 +51,22 @@ insta.get_user_basic_details('champagnepapi',print_formatted=True)
 Check out step by step guide.
 
 [Documentation](instagpy/docs/docs.md)
+
+## Configuration
+
+> ### Example - Config Usage
+
+```python
+from instagpy import config
+
+config.PROXY = {"http":"127.0.0.1","https":"127.0.0.1"}
+config.TIMEOUT = 10
+
+```
+
+Check out configuration docs for the available settings.
+
+[Configurations](instagpy/docs/config.md)
 
 ## Features
 
