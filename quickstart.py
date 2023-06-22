@@ -1,11 +1,12 @@
 from instagpy import InstaGPy
+from instagpy import config
 
 
 def main():
-    proxies = None
-    #proxies = {'http': 'proxy_here', 'https': 'proxy_here'}
-    insta = InstaGPy(proxies=proxies, max_retries=3, use_mutiple_account=False,
-                     session_ids=None, min_requests=None, max_requests=None)
+    #config.TIMEOUT = 5
+    #config.PROXY = {'http': 'proxy_here', 'https': 'proxy_here'}
+    insta = InstaGPy(use_mutiple_account=False, session_ids=None,
+                     min_requests=None, max_requests=None)
     insta.get_user_basic_details('champagnepapi', print_formatted=True)
     #insta.login(username=None, password=None, show_saved_sessions=False, save_session=True)
     # insta.logged_in()
