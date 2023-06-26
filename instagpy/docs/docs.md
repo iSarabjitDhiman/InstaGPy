@@ -6,7 +6,7 @@
 from instagpy import InstaGPy
 from instagpy import config # if want to change configurations.Check out config docs.
 
-insta = InstaGPy(use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None,timeout=None)
+insta = InstaGPy(use_mutiple_account=False, session_ids=None, min_requests=None, max_requests=None, timeout=None)
 
 
     """
@@ -30,7 +30,7 @@ config.TIMEOUT = 10
 
 insta = InstaGPy()
 
-insta.get_user_basic_details('champagnepapi',print_formatted=True)
+insta.get_user_basic_details('champagnepapi', print_formatted=True)
 
 ```
 
@@ -66,10 +66,38 @@ login(username=None, password=None, show_saved_sessions=False, save_session=True
     """
 ```
 
+## Manually Generate Session with a Session ID
+
+```python
+generate_session(session_id=None):
+    """
+        Generates Required Headers and Cookies. OR Generates Session from an existing Session ID.
+
+        Args:
+            session_id (str, optional): Session Id from Instagram Session Cookies. Defaults to None.
+    """
+```
+
+## Shuffle Session Manually.
+
+```python
+shuffle_session(ignore_requests_limit=False):
+
+    """
+        Shuffle session/cookies. Takes a new session ID from self.session_ids only if using with mutiple accounts.
+
+        Args:
+            ignore_requests_limit (bool, optional): Set to True to shuffle session manually regardless of min/max number of requests. Defaults to False.
+
+        Returns:
+            Session object: Session Object i.e. self.session
+    """
+```
+
 ## Get Session ID.
 
 ```python
-get_session_id(self, username=None, password=None, new_session=False)
+get_session_id(username=None, password=None, new_session=False)
 
     """
         Get sessionID of the current session OR a new login session. By default returns current one if logged in.
@@ -97,26 +125,27 @@ self.me
     """
 ```
 
-## Shuffle Session Manually.
-
-```python
-shuffle_session(self, ignore_requests_limit=False):
-
-    """
-        Shuffle session/cookies. Takes a new session ID from self.session_ids only if using with mutiple accounts.
-
-        Args:
-            ignore_requests_limit (bool, optional): Set to True to shuffle session manually regardless of min/max number of requests. Defaults to False.
-
-        Returns:
-            Session object: Session Object i.e. self.session
-    """
-```
-
 ## Get User ID of a User.
 
 ```python
 get_user_id(username)
+```
+
+## Get a brief overview of a user.
+
+```python
+get_user_basic_details(username, print_formatted=False)
+
+    """
+        Get a brief overview of an Instagram Profile.
+
+        Args:
+            username (str, optional): Instagram Username. Defaults to None.
+            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
+
+        Returns:
+            dict: User Data.
+    """
 ```
 
 ## Get User Details i.e. userid, username, bio, friends count etc.
@@ -153,27 +182,27 @@ get_user_data(user_id)
         # returns almost as same data as get_user_info method Except this one returns contact info (email/phone) as well. |LOGIN REQUIRED|
 ```
 
-## Get a brief overview of a user.
+## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date). -- LOGIN REQUIRED
 
 ```python
-get_user_basic_details(username,print_formatted=False)
+get_about_user(username, print_formatted=True)
 
     """
-        Get a brief overview of an Instagram Profile.
+        Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
 
         Args:
-            username (str, optional): Instagram Username. Defaults to None.
-            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
+            username (str): Username of the person
+            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
 
         Returns:
-            dict: User Data.
+            dict: User About Dataset.
     """
 ```
 
 ## Get Followers OR Followings List of a User. -- LOGIN REQUIRED
 
 ```python
-get_user_friends(username, followers_list=False, followings_list=False, end_cursor=None, max=None)
+get_user_friends(username, followers_list=False, followings_list=False, end_cursor=None, total=None)
 
     """
         Fetch follower or following list of a user.
@@ -183,7 +212,7 @@ get_user_friends(username, followers_list=False, followings_list=False, end_curs
             followers_list (bool, optional): Set True if want to extract user's followers list. Defaults to False.
             followings_list (bool, optional): Set True if want to extract user's followings list. Defaults to False.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             list: All followers or followings.
@@ -193,7 +222,7 @@ get_user_friends(username, followers_list=False, followings_list=False, end_curs
 ## Get All Profile Media from a User Profile.
 
 ```python
-get_profile_media(username, end_cursor=None, from_date=None, to_date=None, max=None)
+get_profile_media(username, end_cursor=None, from_date=None, to_date=None, total=None)
 
     """
         Returns all media/posts of the given Instagram Profile.
@@ -203,7 +232,7 @@ get_profile_media(username, end_cursor=None, from_date=None, to_date=None, max=N
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             from_date (str, optional): FORMAT - 'Year-Month-Date' Fetch posts starting from a specified period of time. Defaults to None.
             to_date (str, optional): FORMAT - 'Year-Month-Date'  Fetch posts upto a specified period of time. Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             list: All Posts of the given Instagram user.
@@ -242,27 +271,10 @@ get_media_url(response)
     """
 ```
 
-## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date). -- LOGIN REQUIRED
-
-```python
-get_about_user(username, print_formatted=True)
-
-    """
-        Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
-
-        Args:
-            username (str): Username of the person
-            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
-
-        Returns:
-            dict: User About Dataset.
-    """
-```
-
 ## Get Media Posts from a Hashtag. -- LOGIN REQUIRED
 
 ```python
-get_hashtag_posts(self, hashtag=None, end_cursor=None, max=None)
+get_hashtag_posts(hashtag=None, end_cursor=None, total=None)
 
     """
         Get media posts from hashtags.
@@ -270,7 +282,7 @@ get_hashtag_posts(self, hashtag=None, end_cursor=None, max=None)
         Args:
             hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or #hashtag. Defaults to None.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             dict: Hashtag posts data.
