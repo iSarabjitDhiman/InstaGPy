@@ -303,7 +303,7 @@ class InstaGPy:
                 print(f"{key} : {value}")
         return user
 
-    def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, max=None):
+    def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, total=None):
         """Fetch follower or following list of a user.
 
         Args:
@@ -311,11 +311,18 @@ class InstaGPy:
             followers_list (bool, optional): Set True if want to extract user's followers list. Defaults to False.
             followings_list (bool, optional): Set True if want to extract user's followings list. Defaults to False.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             list: All followers or followings.
         """
+        def filter_data(response):
+            filtered_data = []
+            for each_entry in response:
+                if total is not None and (len(user_friends) + len(filtered_data)) >= total:
+                    return filtered_data
+                filtered_data.append(each_entry)
+            return filtered_data
         if (not followers_list and not followings_list) or (followers_list and followings_list):
             raise Exception(
                 "Set either the followers_list or the followings_list to True.")
@@ -357,11 +364,11 @@ class InstaGPy:
                     if 'next_max_id' in response.keys():
                         end_cursor = response['next_max_id']
                     has_next_page = response['big_list']
-                user_friends.extend(data)
+                user_friends.extend(filter_data(data))
 
                 print(
                     f"{user['username']} : {len(user_friends)} / {count}", end="\r")
-                if not has_next_page or (max is not None and len(user_friends) >= max):
+                if not has_next_page or (total is not None and len(user_friends) >= total):
                     return user_friends
 
                 self.shuffle_session()
@@ -374,7 +381,7 @@ class InstaGPy:
                 print(error)
                 return user_friends
 
-    def get_profile_media(self, username, end_cursor=None, from_date=None, to_date=None, max=None):
+    def get_profile_media(self, username, end_cursor=None, from_date=None, to_date=None, total=None):
         """Returns all media/posts of the given Instagram Profile.
 
         Args:
@@ -382,7 +389,7 @@ class InstaGPy:
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             from_date (str, optional): FORMAT - 'Year-Month-Date' Fetch posts starting from a specified period of time. Defaults to None.
             to_date (str, optional): FORMAT - 'Year-Month-Date'  Fetch posts upto a specified period of time. Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             list: All Posts of the given Instagram user.
@@ -399,7 +406,7 @@ class InstaGPy:
                     if post_date >= to_date:
                         continue
                 posts_data.append(each_post)
-                if max is not None and (len(user_posts_data) + len(posts_data)) >= max:
+                if total is not None and (len(user_posts_data) + len(posts_data)) >= total:
                     return posts_data
             return posts_data
 
@@ -442,7 +449,7 @@ class InstaGPy:
                     if any(datetime.datetime.fromtimestamp(post['node']['taken_at_timestamp']) <= from_date for post in data['edges']):
                         return user_posts_data
 
-                if not has_next_page or (max is not None and len(user_posts_data) >= max):
+                if not has_next_page or (total is not None and len(user_posts_data) >= total):
                     return user_posts_data
 
                 self.shuffle_session()
@@ -507,18 +514,25 @@ class InstaGPy:
         self.shuffle_session()
         return response
 
-    def get_hashtag_posts(self, hashtag=None, end_cursor=None, max=None):
+    def get_hashtag_posts(self, hashtag=None, end_cursor=None, total=None):
         """Get media posts from hashtags.
 
         Args:
             # hashtag. Defaults to None.
             hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
-            max (int, optional): Number of results per request to extract from Instagram Database. Defaults to None.
+            total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
             dict: Hashtag posts data.
         """
+        def filter_data(response):
+            filtered_data = []
+            for each_entry in response:
+                if total is not None and (len(hashtag_posts) + len(filtered_data)) >= total:
+                    return filtered_data
+                filtered_data.append(each_entry)
+            return filtered_data
         if hashtag is None:
             raise Exception("No hashtag was given.")
         if not self.logged_in():
@@ -540,10 +554,10 @@ class InstaGPy:
                 count = data['count']
                 data = data['edges']
 
-                hashtag_posts.extend(data)
+                hashtag_posts.extend(filter_data(data))
                 print(
                     f"#{hashtag} : {len(hashtag_posts)} / {count}", end="\r")
-                if not has_next_page or (max is not None and len(hashtag_posts) >= max):
+                if not has_next_page or (total is not None and len(hashtag_posts) >= total):
                     return hashtag_posts
 
                 self.shuffle_session()
