@@ -73,7 +73,7 @@ class InstaGPy:
         make_request(path.BASE_URL, session=self.session)
         response = requests.get(path.LOGIN_URL)
         if not response.cookies:
-            for _ in range(self.max_retries):
+            for _ in range(config.MAX_RETRIES):
                 response = self.session.get(path.LOGIN_URL)
                 if response.cookies:
                     break
