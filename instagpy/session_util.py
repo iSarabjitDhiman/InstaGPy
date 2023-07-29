@@ -66,9 +66,15 @@ def save_session(session=None, filename=None, path=None):
 
 
 def load_session(filename=None, path=None, session=None):
-    if filename is None or path is None:
+    if filename is None:
         path, filename = show_saved_sessions()
+    if path is None:
+        path = create_session_directory()
+    if not filename.endswith("pkl"):
+        filename = f"{filename}.pkl"
     filename = os.path.join(path, filename)
+    if not os.path.exists(filename):
+        raise Exception("Couldn't find any session file for this user.")
 
     with open(filename, "rb") as file:
         sessionid = pickle.load(file)

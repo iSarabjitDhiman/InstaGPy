@@ -47,7 +47,7 @@ class InstaGPy:
             dict: Currently logged in User Data.
         """
         response = self._get_meta_data()
-        return response['config']['viewer']
+        return response.get('config', {}).get('viewer', None)
 
     def _get_meta_data(self):
         """Returns Browser's and User's Meta Data.
@@ -178,37 +178,46 @@ class InstaGPy:
                 return
         if username is None:
             username = str(input("Enter Your Username or Email : ")).strip()
-        if password is None:
-            password = getpass.getpass()
-        timestamp = int(datetime.datetime.now().timestamp())
-        # login to generate cookies
-        payload = {
-            'username': username,
-            'enc_password': f'#PWD_INSTAGRAM_BROWSER:0:{timestamp}:{password}',
-            'queryParams': {},
-            'optIntoOneTap': 'false',
-            'trustedDeviceRecords': {}
-        }
-        user = self.session.post(path.LOGIN_URL, data=payload).json()
+
         try:
-            if user["authenticated"]:
-                user_id = user["userId"]
-                # test if the account is working
-                user = self.session.get(
-                    path.USER_DATA_ENDPOINT.format(user_id)).json()
-                if user['status'] != 'ok':
-                    raise Exception(
-                        f"Not Working! Check if the given account is working.")
-                user_fullname = user['user']['full_name']
-                print(f"{user_fullname} : Successfully Logged In....")
-                if save_session:
-                    session_util.save_session(
-                        session=self.session, filename=username)
-                return
-            raise Exception("Couldn't LogIn, Try again...")
-        except Exception as error:
-            print('\n', error)
-            utils.check_for_errors(user)
+            session_util.load_session(filename=username, session=self.session)
+            user = self.me
+            if not user:
+                print("Restored Session has been Expired. Trying to Login...")
+                raise Exception("Session Expired.")
+            print(f"{user.get('full_name','')} : Session Restored.")
+        except:
+            if password is None:
+                password = getpass.getpass()
+            timestamp = int(datetime.datetime.now().timestamp())
+            # login to generate cookies
+            payload = {
+                'username': username,
+                'enc_password': f'#PWD_INSTAGRAM_BROWSER:0:{timestamp}:{password}',
+                'queryParams': {},
+                'optIntoOneTap': 'false',
+                'trustedDeviceRecords': {}
+            }
+            user = self.session.post(path.LOGIN_URL, data=payload).json()
+            try:
+                if user["authenticated"]:
+                    user_id = user["userId"]
+                    # test if the account is working
+                    user = self.session.get(
+                        path.USER_DATA_ENDPOINT.format(user_id)).json()
+                    if user['status'] != 'ok':
+                        raise Exception(
+                            f"Not Working! Check if the given account is working.")
+                    user_fullname = user['user']['full_name']
+                    print(f"{user_fullname} : Successfully Logged In....")
+                    if save_session:
+                        session_util.save_session(
+                            session=self.session, filename=username)
+                    return
+                raise Exception("Couldn't Login, Try again...")
+            except Exception as error:
+                print('\n', error)
+                utils.check_for_errors(user)
 
     def logged_in(self):
         """Check if user is logged in.
