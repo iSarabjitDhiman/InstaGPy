@@ -171,7 +171,6 @@ class InstaGPy:
         Returns:
             dict: Response from server whether got logged in.
         """
-        self.generate_session()
         if show_saved_sessions or (username is None and password is None):
             if show_saved_sessions is not False:
                 session_util.load_session(session=self.session)
@@ -187,6 +186,7 @@ class InstaGPy:
                 raise Exception("Session Expired.")
             print(f"{user.get('full_name','')} : Session Restored.")
         except:
+            self.generate_session()
             if password is None:
                 password = getpass.getpass()
             timestamp = int(datetime.datetime.now().timestamp())
@@ -201,6 +201,9 @@ class InstaGPy:
             user = self.session.post(path.LOGIN_URL, data=payload).json()
             try:
                 if user["authenticated"]:
+                    csrf_token = self.session.cookies.get(
+                        "csrftoken", self.session.headers.get('x-csrftoken'))
+                    self.session.headers.update({'x-csrftoken': csrf_token})
                     user_id = user["userId"]
                     # test if the account is working
                     user = self.session.get(

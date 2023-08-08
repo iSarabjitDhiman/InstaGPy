@@ -58,10 +58,9 @@ def save_session(session=None, filename=None, path=None):
     if path is None:
         path = create_session_directory()
     filename = f"{filename}.pkl"
-    session_id = session.cookies['sessionid']
     file_path = os.path.join(path, filename)
     with open(file_path, "wb") as file:
-        pickle.dump(session_id, file)
+        pickle.dump([session.headers, session.cookies], file)
     return path, filename
 
 
@@ -77,11 +76,12 @@ def load_session(filename=None, path=None, session=None):
         raise Exception("Couldn't find any session file for this user.")
 
     with open(filename, "rb") as file:
-        sessionid = pickle.load(file)
+        headers, cookies = pickle.load(file)
     if session is not None:
-        session.cookies.update({'sessionid': sessionid})
+        session.headers = headers
+        session.cookies = cookies
         return
-    return sessionid
+    return session
 
 
 if __name__ == "__main__":
