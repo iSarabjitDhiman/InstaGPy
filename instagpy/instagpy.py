@@ -201,6 +201,9 @@ class InstaGPy:
             user = self.session.post(path.LOGIN_URL, data=payload).json()
             try:
                 if user["authenticated"]:
+                    csrf_token = self.session.cookies.get(
+                        "csrftoken", self.session.headers.get('x-csrftoken'))
+                    self.session.headers.update({'x-csrftoken': csrf_token})
                     user_id = user["userId"]
                     # test if the account is working
                     user = self.session.get(
