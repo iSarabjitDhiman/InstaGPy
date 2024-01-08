@@ -215,7 +215,7 @@ get_user_friends(username, followers_list=False, followings_list=False, end_curs
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            list: All followers or followings.
+            dict: Returns data, end_cursor, has_next_page
     """
 ```
 
@@ -235,7 +235,7 @@ get_profile_media(username, end_cursor=None, from_date=None, to_date=None, total
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            list: All Posts of the given Instagram user.
+            dict: Returns data, end_cursor, has_next_page
     """
 ```
 
@@ -285,6 +285,6 @@ get_hashtag_posts(hashtag=None, end_cursor=None, total=None)
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            dict: Hashtag posts data.
+            dict: Returns data, end_cursor, has_next_page
     """
 ```

@@ -386,7 +386,7 @@ class InstaGPy:
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            list: All followers or followings.
+            dict: Returns data, end_cursor, has_next_page
         """
         if (not followers_list and not followings_list) or (followers_list and followings_list):
             raise Exception(
@@ -429,7 +429,7 @@ class InstaGPy:
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            list: All Posts of the given Instagram user.
+            dict: Returns data, end_cursor, has_next_page
         """
 
         user = self.get_user_basic_details(username)
@@ -511,7 +511,7 @@ class InstaGPy:
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
 
         Returns:
-            dict: Hashtag posts data.
+            dict: Returns data, end_cursor, has_next_page
         """
         if hashtag is None:
             raise Exception("No hashtag was given.")
