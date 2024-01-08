@@ -93,7 +93,7 @@ class InstaGPy:
         config._DEFAULT_SESSION = self.session
         return self.session
     
-    def _handle_pagination(self, url, data_path=None, total=None, from_date=None, to_date=None, request_payload=None):
+    def _handle_pagination(self, url, data_path=None, total=None, from_date=None, to_date=None, data_count=None, request_payload=None):
         # fmt: off  - Turns off formatting for this block of code. Just for the readability purpose.
         def filter_data(response):
             filtered_data = []
@@ -122,11 +122,13 @@ class InstaGPy:
                 data = reduce(dict.get, data_path, response)
                 end_cursor = data.get("page_info",{}).get("end_cursor",None) if isinstance(data, dict) else None or response.get("next_max_id",None)
                 has_next_page = data.get("page_info",{}).get("has_next_page",None) if isinstance(data, dict) else None or response.get("big_list", None)
+                if not data_count:
+                    data_count = data.get("count","") if isinstance(data, dict) else ""
                 if isinstance(data, dict):
                     data = data.get('edges',[])
                 data_container['data'].extend(filter_data(data))
                 
-                print(len(data_container['data']), end="\r")
+                print(f"Fetched Data : {len(data_container['data'])} / {data_count}".strip(" /"), end="\r")
 
                 if end_cursor:
                     request_payload['end_cursor'] = end_cursor
