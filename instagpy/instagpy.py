@@ -104,7 +104,7 @@ class InstaGPy:
                     continue
                 if to_date and created_at and created_at >= to_date:
                     continue
-                if total is not None and (len(all_data) + len(filtered_data)) >= total:
+                if total is not None and (len(data_container['data']) + len(filtered_data)) >= total:
                     return filtered_data
                 filtered_data.append(each_entry)
             return filtered_data
@@ -113,10 +113,9 @@ class InstaGPy:
             raise Exception("Invalid request payload")
         if not data_path:
             raise Exception("No data path specified")
-        all_data = []
-        has_next_page = True
         print(f'Started at : {utils.format_datetime(time.time())}\n')
-        while has_next_page:
+        data_container = {"data": [],"end_cursor": None, "has_next_page": True}
+        while data_container["has_next_page"]:
             try:
                 query_params = self.generate_query(**request_payload)
                 response = make_request(url, params=query_params)
@@ -125,19 +124,23 @@ class InstaGPy:
                 has_next_page = data.get("page_info",{}).get("has_next_page",None) if isinstance(data, dict) else None or response.get("big_list", None)
                 if isinstance(data, dict):
                     data = data.get('edges',[])
-                all_data.extend(filter_data(data))
+                data_container['data'].extend(filter_data(data))
                 
-                print(len(all_data), end="\r")
+                print(len(data_container['data']), end="\r")
 
                 if end_cursor:
                     request_payload['end_cursor'] = end_cursor
+                    data_container['end_cursor'] = end_cursor
 
-                if not has_next_page or (total is not None and len(all_data) >= total):
-                    return all_data
+                if not has_next_page:
+                    data_container["has_next_page"] = False
+
+                if not data_container["has_next_page"] or (total is not None and len(data_container['data']) >= total):
+                    return data_container
                 
                 if from_date:
                     if any(datetime.datetime.fromtimestamp(post['node']['taken_at_timestamp']) <= from_date for post in data['edges']):
-                        return all_data
+                        return data_container
                 
                 self.shuffle_session()
             # fmt: on 
@@ -147,7 +150,7 @@ class InstaGPy:
 
             except Exception as error:
                 print(error)
-                return all_data
+                return data_container
 
     def shuffle_session(self, ignore_requests_limit=False):
         """Shuffle session/cookies. Takes a new session ID from self.session_ids if using with mutiple accounts.
