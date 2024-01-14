@@ -58,6 +58,13 @@ class InstaGPy:
         """
         response = make_request(path.META_DATA_URL)
         return response
+    
+    def login_decorator(original_function):
+        def wrapper(self, *args, **kwargs):
+            if not self.logged_in:
+                self.login()
+            return original_function(self, *args, **kwargs)
+        return wrapper
 
     def generate_session(self, session_id=None):
         """Generates Required Headers and Cookies. OR Generates Session from an existing Session ID.
@@ -334,6 +341,7 @@ class InstaGPy:
         self.shuffle_session()
         return response
 
+    @login_decorator
     def get_user_data(self, user_id):
         """Extracts user details. With Contact Info Like email, phone and address.
 
@@ -344,8 +352,6 @@ class InstaGPy:
             dict: user info along with contact info.
         """
         # returns almost as same data as get_user_info method Except this one returns contact info (email/phone) as well. |LOGIN REQUIRED|
-        if not self.logged_in:
-            self.login()
         user_id = self.get_user_id(user_id)
         response = make_request(path.USER_DATA_ENDPOINT.format(user_id))
         self.shuffle_session()
@@ -380,6 +386,7 @@ class InstaGPy:
                 print(f"{key} : {value}")
         return user
 
+    @login_decorator
     def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, total=None):
         """Fetch follower or following list of a user.
 
@@ -396,8 +403,6 @@ class InstaGPy:
         if (not followers_list and not followings_list) or (followers_list and followings_list):
             raise Exception(
                 "Set either the followers_list or the followings_list to True.")
-        if not self.logged_in:
-            self.login()
         user = self.get_user_basic_details(username)
         data_count = user['follower_count'] if followers_list else user['following_count'] if followings_list else None
 
@@ -481,6 +486,7 @@ class InstaGPy:
                 return [each_carousel['node']['display_resources'][-1]['src'] for each_carousel in response['data']['shortcode_media']['edge_sidecar_to_children']["edges"]]
         return None
 
+    @login_decorator
     def get_about_user(self, username, print_formatted=True):
         """Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
 
@@ -491,8 +497,6 @@ class InstaGPy:
         Returns:
             dict: User About Dataset.
         """
-        if not self.logged_in:
-            self.login()
         user_id = self.get_user_id(username)
         data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
             'bloks_version': path.ABOUT_USER_QUERY, 'style_id': 'instagram'}, 'bloks_versioning_id': path.ABOUT_USER_QUERY}
@@ -502,6 +506,7 @@ class InstaGPy:
         self.shuffle_session()
         return response
 
+    @login_decorator
     def get_hashtag_posts(self, hashtag=None, end_cursor=None, total=None):
         """Get media posts from hashtags.
 
@@ -516,8 +521,6 @@ class InstaGPy:
         """
         if hashtag is None:
             raise Exception("No hashtag was given.")
-        if not self.logged_in:
-            self.login()
         hashtag = hashtag.lstrip("#")
         request_config = {"query": path.HASHTAG_QUERY, "hashtag": hashtag, "count": 50, "end_cursor": end_cursor, "is_graphql": True}
         data_path = ('data', 'hashtag', 'edge_hashtag_to_media')
