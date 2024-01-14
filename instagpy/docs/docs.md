@@ -37,7 +37,7 @@ insta.get_user_basic_details('champagnepapi', print_formatted=True)
 ## Check If User is Logged In.
 
 ```python
-logged_in()
+self.logged_in
 
     """
         Check if user is logged in.

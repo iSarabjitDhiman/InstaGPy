@@ -8,7 +8,7 @@ from . import config
 def generate_new_session(path=None):
     insta = instagram.InstaGPy()
     insta.login(show_saved_sessions=False, save_session=False)
-    if insta.logged_in():
+    if insta.logged_in:
         try:
             filename = insta.me['username']
         except:

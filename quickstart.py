@@ -9,7 +9,7 @@ def main():
                      min_requests=None, max_requests=None)
     insta.get_user_basic_details('champagnepapi', print_formatted=True)
     #insta.login(username=None, password=None, show_saved_sessions=False, save_session=True)
-    # insta.logged_in()
+    # insta.logged_in
     # user_id = insta.get_user_id(username=None)
     # user = insta.get_user_basic_details(username=None)
     # user_info = insta.get_user_info(username=None)
