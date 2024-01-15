@@ -33,6 +33,37 @@ insta = InstaGPy()
 insta.get_user_basic_details('champagnepapi', print_formatted=True)
 
 ```
+> ### Example - Get User Followers (Pagination Usage).
+
+```python
+import time, random
+from instagpy import InstaGPy
+from instagpy import config
+
+config.PROXY = {"http":"127.0.0.1","https":"127.0.0.1"}
+config.TIMEOUT = 10
+
+insta = InstaGPy()
+
+followers = []
+has_more = True
+cursor = None
+while has_more:
+    try:
+        response = None
+        response = insta.get_user_friends('zuck', followers_list=True, end_cursor=cursor, pagination=False)
+        followers.extend(response['data'])
+        has_more = response.get('has_next_page')
+        if has_more:
+            cursor = response.get('end_cursor')
+        ## YOUR CUSTOM CODE HERE (DATA HANDLING, REQUEST DELAYS, SESSION SHUFFLING ETC.)
+        ## time.sleep(random.uniform(7,10))
+    except Exception as error:
+        print(error)
+        break
+
+
+```
 
 ## Check If User is Logged In.
 
@@ -202,7 +233,7 @@ get_about_user(username, print_formatted=True)
 ## Get Followers OR Followings List of a User. -- LOGIN REQUIRED
 
 ```python
-get_user_friends(username, followers_list=False, followings_list=False, end_cursor=None, total=None)
+get_user_friends(username, followers_list=False, followings_list=False, end_cursor=None, total=None, pagination=True)
 
     """
         Fetch follower or following list of a user.
@@ -213,6 +244,7 @@ get_user_friends(username, followers_list=False, followings_list=False, end_curs
             followings_list (bool, optional): Set True if want to extract user's followings list. Defaults to False.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page
@@ -222,7 +254,7 @@ get_user_friends(username, followers_list=False, followings_list=False, end_curs
 ## Get All Profile Media from a User Profile.
 
 ```python
-get_profile_media(username, end_cursor=None, from_date=None, to_date=None, total=None)
+get_profile_media(username, end_cursor=None, from_date=None, to_date=None, total=None, pagination=True)
 
     """
         Returns all media/posts of the given Instagram Profile.
@@ -233,6 +265,7 @@ get_profile_media(username, end_cursor=None, from_date=None, to_date=None, total
             from_date (str, optional): FORMAT - 'Year-Month-Date' Fetch posts starting from a specified period of time. Defaults to None.
             to_date (str, optional): FORMAT - 'Year-Month-Date'  Fetch posts upto a specified period of time. Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page
@@ -274,7 +307,7 @@ get_media_url(response)
 ## Get Media Posts from a Hashtag. -- LOGIN REQUIRED
 
 ```python
-get_hashtag_posts(hashtag=None, end_cursor=None, total=None)
+get_hashtag_posts(hashtag=None, end_cursor=None, total=None, pagination=True)
 
     """
         Get media posts from hashtags.
@@ -283,6 +316,7 @@ get_hashtag_posts(hashtag=None, end_cursor=None, total=None)
             hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or #hashtag. Defaults to None.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page

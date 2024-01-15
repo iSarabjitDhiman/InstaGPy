@@ -101,7 +101,7 @@ class InstaGPy:
         config._DEFAULT_SESSION = self.session
         return self.session
     
-    def _handle_pagination(self, data_path=None, total=None, from_date=None, to_date=None, data_count=None, request_config=None):
+    def _handle_pagination(self, data_path=None, total=None, from_date=None, to_date=None, data_count=None, request_config=None, pagination=True):
         # fmt: off  - Turns off formatting for this block of code. Just for the readability purpose.
         def filter_data(response):
             filtered_data = []
@@ -121,6 +121,8 @@ class InstaGPy:
             raise Exception("Invalid request config")
         if not data_path:
             raise Exception("No data path specified")
+        if not pagination and total:
+            raise Exception("Either enable the pagination or disable total number of results.")
         data_container = {"data": [],"end_cursor": None, "has_next_page": True}
         while data_container["has_next_page"]:
             try:
@@ -144,7 +146,7 @@ class InstaGPy:
                 if not has_next_page:
                     data_container["has_next_page"] = False
 
-                if not data_container["has_next_page"] or (total is not None and len(data_container['data']) >= total):
+                if not data_container["has_next_page"] or (total is not None and len(data_container['data']) >= total) or not pagination:
                     return data_container
                 
                 if from_date:
@@ -387,7 +389,7 @@ class InstaGPy:
         return user
 
     @login_decorator
-    def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, total=None):
+    def get_user_friends(self, username, followers_list=False, followings_list=False, end_cursor=None, total=None, pagination=True):
         """Fetch follower or following list of a user.
 
         Args:
@@ -396,6 +398,7 @@ class InstaGPy:
             followings_list (bool, optional): Set True if want to extract user's followings list. Defaults to False.
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page
@@ -426,9 +429,9 @@ class InstaGPy:
             data_path = ("users",)
             request_config = request_config | {"count": max_data, "end_cursor": end_cursor}
         request_config = request_config | {"url": url}
-        return self._handle_pagination(data_path=data_path, total=total, request_config=request_config, data_count=data_count)
+        return self._handle_pagination(data_path=data_path, total=total, request_config=request_config, data_count=data_count, pagination=pagination)
 
-    def get_profile_media(self, username, end_cursor=None, from_date=None, to_date=None, total=None):
+    def get_profile_media(self, username, end_cursor=None, from_date=None, to_date=None, total=None, pagination=True):
         """Returns all media/posts of the given Instagram Profile.
 
         Args:
@@ -437,6 +440,7 @@ class InstaGPy:
             from_date (str, optional): FORMAT - 'Year-Month-Date' Fetch posts starting from a specified period of time. Defaults to None.
             to_date (str, optional): FORMAT - 'Year-Month-Date'  Fetch posts upto a specified period of time. Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page
@@ -449,7 +453,7 @@ class InstaGPy:
             to_date = utils.parse_datetime(to_date) + datetime.timedelta(days=1)
         request_config = {"query": path.USER_FEED_QUERY, "user_id": user_id, "count": 50, "end_cursor": end_cursor, "is_graphql": True}
         data_path = ('data', 'user', 'edge_owner_to_timeline_media')
-        return self._handle_pagination(data_path=data_path, total=total, from_date=from_date, to_date=to_date, request_config=request_config)
+        return self._handle_pagination(data_path=data_path, total=total, from_date=from_date, to_date=to_date, request_config=request_config, pagination=pagination)
 
     def get_post_details(self, post_url):
         """Get details of a particular Instagram Post/Media.
@@ -507,7 +511,7 @@ class InstaGPy:
         return response
 
     @login_decorator
-    def get_hashtag_posts(self, hashtag=None, end_cursor=None, total=None):
+    def get_hashtag_posts(self, hashtag=None, end_cursor=None, total=None, pagination=True):
         """Get media posts from hashtags.
 
         Args:
@@ -515,6 +519,7 @@ class InstaGPy:
             hashtag (str): Hashtag that you want to extract data from. Accepts both formats i.e. hashtag or
             end_cursor (str, optional): Last endcursor point. (To start from where you left off last time). Defaults to None.
             total (int, optional): Total number of results to extract. Defaults to None. -- Gets all by default.
+            pagination (bool, optional): Set to False if want to handle each page request manually. Use end_cursor from the previous page/request to navigate to the next page. Defaults to True.
 
         Returns:
             dict: Returns data, end_cursor, has_next_page
@@ -524,7 +529,7 @@ class InstaGPy:
         hashtag = hashtag.lstrip("#")
         request_config = {"query": path.HASHTAG_QUERY, "hashtag": hashtag, "count": 50, "end_cursor": end_cursor, "is_graphql": True}
         data_path = ('data', 'hashtag', 'edge_hashtag_to_media')
-        return self._handle_pagination(data_path=data_path, total=total, request_config=request_config)
+        return self._handle_pagination(data_path=data_path, total=total, request_config=request_config, pagination=pagination)
 
 
 
