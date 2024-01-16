@@ -359,12 +359,12 @@ class InstaGPy:
         self.shuffle_session()
         return response
 
-    def get_user_basic_details(self, username=None, print_formatted=False):
+    def get_user_basic_details(self, username=None, pretty_print=False):
         """Get a brief overview of an Instagram Profile.
 
         Args:
             username (str, optional): Instagram Username. Defaults to None.
-            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
+            pretty_print (bool, optional): Print Data in a Structured way. Defaults to False.
 
         Returns:
             dict: User Data.
@@ -383,7 +383,7 @@ class InstaGPy:
         user['following_count'] = user_info['edge_follow']['count']
         user['media_count'] = user_info['edge_owner_to_timeline_media']['count']
         user['website'] = user_info['external_url']
-        if print_formatted:
+        if pretty_print:
             for key, value in user.items():
                 print(f"{key} : {value}")
         return user
@@ -491,12 +491,12 @@ class InstaGPy:
         return None
 
     @login_decorator
-    def get_about_user(self, username, print_formatted=True):
+    def get_about_user(self, username, pretty_print=True):
         """Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
 
         Args:
             username (str): Username of the person
-            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
+            pretty_print (bool, optional): Returns only necessary and structured data if set to True Else would return the whole dataset. Defaults to True.
 
         Returns:
             dict: User About Dataset.
@@ -505,12 +505,11 @@ class InstaGPy:
         data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
             'bloks_version': path.ABOUT_USER_QUERY, 'style_id': 'instagram'}, 'bloks_versioning_id': path.ABOUT_USER_QUERY}
         response = make_request(path.ABOUT_USER_URL, method='POST', data=data)
-        if print_formatted:
+        if pretty_print:
             return utils.format_about_data(response)
         self.shuffle_session()
         return response
 
-    @login_decorator
     def get_hashtag_posts(self, hashtag=None, end_cursor=None, total=None, pagination=True):
         """Get media posts from hashtags.
 

@@ -7,7 +7,7 @@ def main():
     #config.PROXY = {'http': 'proxy_here', 'https': 'proxy_here'}
     insta = InstaGPy(use_mutiple_account=False, session_ids=None,
                      min_requests=None, max_requests=None)
-    insta.get_user_basic_details('champagnepapi', print_formatted=True)
+    insta.get_user_basic_details('champagnepapi', pretty_print=True)
     #insta.login(username=None, password=None, show_saved_sessions=False, save_session=True)
     # insta.logged_in
     # user_id = insta.get_user_id(username=None)

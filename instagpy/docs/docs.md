@@ -30,7 +30,7 @@ config.TIMEOUT = 10
 
 insta = InstaGPy()
 
-insta.get_user_basic_details('champagnepapi', print_formatted=True)
+insta.get_user_basic_details('champagnepapi', pretty_print=True)
 
 ```
 > ### Example - Get User Followers (Pagination Usage).
@@ -165,14 +165,14 @@ get_user_id(username)
 ## Get a brief overview of a user.
 
 ```python
-get_user_basic_details(username, print_formatted=False)
+get_user_basic_details(username, pretty_print=False)
 
     """
         Get a brief overview of an Instagram Profile.
 
         Args:
             username (str, optional): Instagram Username. Defaults to None.
-            print_formatted (bool, optional): Print Data in a Structure way. Defaults to False.
+            pretty_print (bool, optional): Print Data in a Structured way. Defaults to False.
 
         Returns:
             dict: User Data.
@@ -216,14 +216,14 @@ get_user_data(user_id)
 ## Get User About Info (location, if running any ads, verified, Joining Date, Verification Date). -- LOGIN REQUIRED
 
 ```python
-get_about_user(username, print_formatted=True)
+get_about_user(username, pretty_print=True)
 
     """
         Returns user about details like account location, if running any ads, verified, Joining Date, Verification Date.
 
         Args:
             username (str): Username of the person
-            print_formatted (bool, optional): Returns only necessary and structure data if set to True Else would return the whole dataset. Defaults to True.
+            pretty_print (bool, optional): Returns only necessary and structured data if set to True Else would return the whole dataset. Defaults to True.
 
         Returns:
             dict: User About Dataset.
