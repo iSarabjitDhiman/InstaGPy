@@ -5,12 +5,14 @@ from . import config
 
 
 def make_request(url, session=None, method=None, max_retries=None, timeout=None, **kwargs):
+    if session is None:
+        raise NameError("name 'session' is not defined.")
+    if not isinstance(session, requests.Session):
+        raise TypeError(f"Invalid session type. {session} is not a requests.Session Object...")
     if method is None:
         method = "GET"
     if max_retries is None:
         max_retries = config.MAX_RETRIES or 3
-    if session is None:
-        session = config._DEFAULT_SESSION or requests.Session()
     if timeout is None:
         timeout = config.TIMEOUT or 30
     for retry_count, _ in enumerate(range(max_retries), start=1):

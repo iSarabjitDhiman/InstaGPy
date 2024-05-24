@@ -56,7 +56,7 @@ class InstaGPy:
         Returns:
             dict: Meta Data.
         """
-        response = make_request(path.META_DATA_URL)
+        response = make_request(path.META_DATA_URL, session=self.session)
         return response
     
     def login_decorator(original_function):
@@ -72,33 +72,36 @@ class InstaGPy:
         Args:
             session_id (str, optional): Session Id from Instagram Session Cookies. Defaults to None.
         """
-        self.session = requests.Session()
-        if config.PROXY is not None:
-            self.session.proxies = config.PROXY
-            self.session.verify = False
-        self.session.headers.update(
-            {"User-Agent": random.choice(config._USER_AGENTS)})
-        make_request(path.BASE_URL, session=self.session)
-        response = requests.get(path.LOGIN_URL)
-        for _ in range(config.MAX_RETRIES):
-            if response.cookies:
-                break
-            response = self.session.get(path.LOGIN_URL)
-        csrf_token = dict(response.cookies).get("csrftoken",None)
-        if not csrf_token:
-            raise Exception("Couldn't generate CSRF Token")
-        self.session.headers.update(
-            {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': path.BASE_URL})
-        self.session.cookies = response.cookies
-        if session_id:
-            # load an existing session with session_id
-            self.session.cookies.update({'sessionid': session_id})
-
+        session = requests.Session()
         try:
-            self.me
-        except:
-            pass
-        config._DEFAULT_SESSION = self.session
+            if config.PROXY is not None:
+                session.proxies = config.PROXY
+                session.verify = False
+            session.headers.update(
+                {"User-Agent": random.choice(config._USER_AGENTS)})
+            make_request(path.BASE_URL, session=session)
+            response = requests.get(path.LOGIN_URL)
+            for _ in range(config.MAX_RETRIES):
+                if response.cookies:
+                    break
+                response = session.get(path.LOGIN_URL)
+            csrf_token = dict(response.cookies).get("csrftoken",None)
+            if not csrf_token:
+                raise Exception("Couldn't generate CSRF Token")
+            session.headers.update(
+                {'x-csrftoken': csrf_token, 'X-Requested-With': "XMLHttpRequest", 'Referer': path.BASE_URL})
+            session.cookies = response.cookies
+            if session_id:
+                # load an existing session with session_id
+                session.cookies.update({'sessionid': session_id})
+
+            try:
+                self.me
+            except:
+                pass
+        except Exception as error:
+            print(error)
+        self.session = session
         return self.session
     
     def _handle_pagination(self, data_path=None, total=None, from_date=None, to_date=None, data_count=None, request_config=None, pagination=True):
@@ -229,7 +232,7 @@ class InstaGPy:
             if end_cursor is not None:
                 params["max_id"] = end_cursor
                 
-        request_payload = {"url": url or path.GRAPHQL_URL, "params": params}
+        request_payload = {"url": url or path.GRAPHQL_URL, "params": params, "session":self.session}
         return request_payload
 
     def login(self, username=None, password=None, show_saved_sessions=False, save_session=True):
@@ -339,7 +342,7 @@ class InstaGPy:
         Returns:
             dict: user info like username,id,bio,follower/following count etc.
         """
-        response = make_request(path.USER_PROFILE_ENDPOINT.format(username))
+        response = make_request(path.USER_PROFILE_ENDPOINT.format(username), session=self.session)
         self.shuffle_session()
         return response
 
@@ -355,7 +358,7 @@ class InstaGPy:
         """
         # returns almost as same data as get_user_info method Except this one returns contact info (email/phone) as well. |LOGIN REQUIRED|
         user_id = self.get_user_id(user_id)
-        response = make_request(path.USER_DATA_ENDPOINT.format(user_id))
+        response = make_request(path.USER_DATA_ENDPOINT.format(user_id), session=self.session)
         self.shuffle_session()
         return response
 
@@ -504,7 +507,7 @@ class InstaGPy:
         user_id = self.get_user_id(username)
         data = {'referer_type': 'ProfileUsername', 'target_user_id': user_id, 'bk_client_context': {
             'bloks_version': path.ABOUT_USER_QUERY, 'style_id': 'instagram'}, 'bloks_versioning_id': path.ABOUT_USER_QUERY}
-        response = make_request(path.ABOUT_USER_URL, method='POST', data=data)
+        response = make_request(path.ABOUT_USER_URL, method='POST', data=data, session=self.session)
         if pretty_print:
             return utils.format_about_data(response)
         self.shuffle_session()

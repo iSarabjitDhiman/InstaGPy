@@ -47,8 +47,10 @@ def show_saved_sessions(path=None):
 
 
 def save_session(session=None, filename=None, path=None):
-    if session is None or not isinstance(session, requests.Session):
-        raise TypeError(f'{session} is not a requests Session Object...')
+    if session is None:
+        raise NameError("name 'session' is not defined.")
+    if not isinstance(session, requests.Session):
+        raise TypeError(f"Invalid session type. {session} is not a requests.Session Object...")
     if filename is None:
         try:
             filename = session.cookies['ds_user_id']
@@ -65,6 +67,10 @@ def save_session(session=None, filename=None, path=None):
 
 
 def load_session(filename=None, path=None, session=None):
+    if session is None:
+        raise NameError("name 'session' is not defined.")
+    if not isinstance(session, requests.Session):
+        raise TypeError(f"Invalid session type. {session} is not a requests.Session Object...")
     if filename is None:
         path, filename = show_saved_sessions()
     if path is None:
@@ -77,10 +83,8 @@ def load_session(filename=None, path=None, session=None):
 
     with open(filename, "rb") as file:
         headers, cookies = pickle.load(file)
-    if session is not None:
-        session.headers = headers
-        session.cookies = cookies
-        return
+    session.headers = headers
+    session.cookies = cookies
     return session
 
 
